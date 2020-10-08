@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"
+      dir="ltr">
+<head>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th scope="col">工作項目</th>
+        <th scope="col">數量</th>
+        <th scope="col">單價</th>
+        <th scope="col">小計</th>
+    </tr>
+    </thead>
+    <tbody id="listData">
+    <tr>
+        <td>A</td>
+        <td>2</td>
+        <td>3</td>
+        <td>6</td>
+        <td>A6</td>
+    </tr>
+    <tr>
+        <td>B</td>
+        <td>3</td>
+        <td>4</td>
+        <td>12</td>
+        <td>B12</td>
+    </tr>
+    <tr>
+        <td>C</td>
+        <td>4</td>
+        <td>5</td>
+        <td>20</td>
+        <td>C20</td>
+    </tr>
+    </tbody>
+</table>
+<button id="fetchNextPageListDataBtn">取得下一頁資料</button>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    // 這部份是工程師的事
+    // 這樣的設計，可以不用在 function 看到是對哪個 dom 做操作，只需要知道結構就可以了
+    // 而 dom 的指定，則由呼叫端決定就可以。維護上，會比較集中
+
+    window.ListData = {};
+    window.ListData.RegisterListDataColumnEvents = function(tbody) {
+        $(tbody).find('tr').each(function(index, tr){
+            $(tr).click(function(e) {
+                alert(e.currentTarget.outerHTML);
+            })
+        });
+    }
+    window.ListData.GetNextPageListData = function (pageInfo) {
+        // 假設，此處以 ajax 將 pageInfo 送回後端，將資料取回來，實際上 jQuery 會以 callback 的方式來呼叫
+        return '<tr> <td>D</td> <td>5</td> <td>6</td> <td>30</td> <td>D30</td> </tr> <tr> <td>E</td> <td>6</td> <td>7</td> <td>42</td> <td>E42</td> </tr> <tr> <td>F</td> <td>7</td> <td>8</td> <td>56</td> <td>F56</td> </tr>';
+    }
+</script>
+<script>
+    window.onload = function(){
+        $('#fetchNextPageListDataBtn').click(function(e) {
+            var pageInfo = {};
+            pageInfo.PageNo = 1;
+            pageInfo.PageSize = 10;
+
+            var nextPageListData = window.ListData.GetNextPageListData(pageInfo);
+            $('#listData').html(nextPageListData);
+
+            // 如果這行註解，從 ajax 取回下頁資料後， tr 上的 click 事件就消失了 !
+            // 所以工程師需要加這段 Code
+            ListData.RegisterListDataColumnEvents($('#listData'));
+        });
+
+        // 為了第一次進入頁面用的
+        // 呼叫端：指定了需要綁定事件的 dom
+        ListData.RegisterListDataColumnEvents($('#listData'));
+    }
+</script>
+</body>
+</html>
